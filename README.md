@@ -45,5 +45,5 @@ branch `original` di https://github.com/TUNBudi06/mikhmon.
 ## Catatan cache
 Router menyimpan file statis (js/css) di HP pelanggan selama 1 tahun.
 - `conf.js` selalu diambil baru (boleh diedit kapan saja).
-- Jika mengubah `js/hotspot.js` atau `css/hotspot.css`, naikkan angka `?v=4` di semua file `.html`
-  (misalnya jadi `?v=5`), supaya HP pelanggan memuat versi baru.
+- Jika mengubah `js/hotspot.js` atau `css/hotspot.css`, naikkan angka `?v=5` di semua file `.html`
+  (misalnya jadi `?v=6`), supaya HP pelanggan memuat versi baru.

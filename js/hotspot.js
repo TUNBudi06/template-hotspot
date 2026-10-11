@@ -18,7 +18,7 @@ var HS = (function () {
       bye: "Anda sudah keluar", again: "Masuk lagi", success: "Berhasil masuk!", redirecting: "Mengalihkan...",
       continuebtn: "Lanjut browsing", statuspage: "Lihat status", err: "Terjadi kesalahan", back: "Kembali",
       expired: "Voucher sudah habis", savepage: "Simpan halaman ini untuk cek sisa waktu:", d: "hari", h: "jam", m: "menit", s: "detik",
-      trial: "Coba gratis", vstatus: "Status Voucher", vactive: "Aktif", vunused: "Belum dipakai", package: "Paket",
+      trial: "Coba gratis", vstatus: "Status Voucher", vactive: "Aktif", vunused: "Belum dipakai", vonline: "Aktif (online)", vidle: "Tidak dipakai", vnever: "Belum pernah dipakai", vdisabled: "Nonaktif", package: "Paket",
       validity: "Masa aktif", timeleft: "Sisa waktu pakai", total: "Total pemakaian", noinfo: "Info voucher belum bisa dimuat. Coba muat ulang halaman.",
       or: "atau", scan: "Scan QR Voucher",
       pwshow: "Lihat", pwhide: "Tutup"
@@ -34,7 +34,7 @@ var HS = (function () {
       bye: "You are logged out", again: "Log in again", success: "You are connected!", redirecting: "Redirecting...",
       continuebtn: "Continue browsing", statuspage: "View status", err: "Something went wrong", back: "Back",
       expired: "Voucher used up", savepage: "Bookmark this page to check your time:", d: "days", h: "hours", m: "min", s: "sec",
-      trial: "Free trial", vstatus: "Voucher Status", vactive: "Active", vunused: "Not used yet", package: "Package",
+      trial: "Free trial", vstatus: "Voucher Status", vactive: "Active", vunused: "Not used yet", vonline: "Active (online)", vidle: "Not in use", vnever: "Never used", vdisabled: "Disabled", package: "Package",
       validity: "Validity", timeleft: "Usage time left", total: "Total usage", noinfo: "Voucher info could not be loaded. Please reload the page.",
       or: "or", scan: "Scan Voucher QR",
       pwshow: "Show", pwhide: "Hide"
@@ -255,8 +255,9 @@ var HS = (function () {
   function show(id, on) { $(id).className = on ? "kv" : "hide"; }
 
   function voucherStatus(r, v) {
-    var labels = { active: ["vactive", ""], unused: ["vunused", "warn"], expired: ["expired", "bad"] };
-    var b = labels[r.status] || labels.active;
+    // state: online | idle (valid, not connected) | never (never used) | expired | disabled
+    var labels = { online: ["vonline", ""], idle: ["vidle", "warn"], never: ["vnever", "warn"], expired: ["expired", "bad"], disabled: ["vdisabled", "bad"] };
+    var b = labels[r.state] || labels[r.status === "unused" ? "never" : (r.status === "expired" ? "expired" : "online")];
     $("vBadge").textContent = t(b[0]);
     $("vBadge").className = "badge " + b[1];
     $("vLoading").className = "hide";
