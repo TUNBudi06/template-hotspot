@@ -20,8 +20,8 @@ var HS = (function () {
       expired: "Voucher sudah habis", savepage: "Simpan halaman ini untuk cek sisa waktu:", d: "hari", h: "jam", m: "menit", s: "detik",
       trial: "Coba gratis", vstatus: "Status Voucher", vactive: "Aktif", vunused: "Belum dipakai", package: "Paket",
       validity: "Masa aktif", timeleft: "Sisa waktu pakai", total: "Total pemakaian", noinfo: "Info voucher belum bisa dimuat. Coba muat ulang halaman.",
-      or: "atau", scan: "Scan QR Voucher", scanhelp: "Arahkan kamera ke QR pada voucher", cancel: "Batal",
-      scanfail: "QR tidak terbaca. Foto lebih dekat dan terang, atau ketik kodenya.", pwshow: "Lihat", pwhide: "Tutup", scanlocal: "Kamera tidak terbuka? Foto QR di sini"
+      or: "atau", scan: "Scan QR Voucher",
+      pwshow: "Lihat", pwhide: "Tutup"
     },
     en: {
       voucher: "Voucher", member: "Member", code: "Voucher Code", user: "Username", pass: "Password",
@@ -36,8 +36,8 @@ var HS = (function () {
       expired: "Voucher used up", savepage: "Bookmark this page to check your time:", d: "days", h: "hours", m: "min", s: "sec",
       trial: "Free trial", vstatus: "Voucher Status", vactive: "Active", vunused: "Not used yet", package: "Package",
       validity: "Validity", timeleft: "Usage time left", total: "Total usage", noinfo: "Voucher info could not be loaded. Please reload the page.",
-      or: "or", scan: "Scan Voucher QR", scanhelp: "Point the camera at the QR on the voucher", cancel: "Cancel",
-      scanfail: "Could not read the QR. Take the photo closer and brighter, or type the code.", pwshow: "Show", pwhide: "Hide", scanlocal: "Camera did not open? Take a photo of the QR here"
+      or: "or", scan: "Scan Voucher QR",
+      pwshow: "Show", pwhide: "Hide"
     }
   };
   var L = TEXT[C.lang === "en" ? "en" : "id"];
@@ -153,104 +153,13 @@ var HS = (function () {
   }
 
   // ---------- QR scan ----------
-  // Voucher QR = "http://<dns>/login?username=U&password=P" (or just the code).
-  function fromQR(text) {
-    text = String(text || "").replace(/^\s+|\s+$/g, "");
-    var u = (/[?&]username=([^&#]*)/.exec(text) || [])[1];
-    var p = (/[?&]password=([^&#]*)/.exec(text) || [])[1];
-    try { u = u !== undefined ? decodeURIComponent(u.replace(/\+/g, " ")) : u; p = p !== undefined ? decodeURIComponent(p.replace(/\+/g, " ")) : p; } catch (e) {}
-    if (u === undefined) { u = text; p = text; }
-    if (!u) { return false; }
-    setMode(u === p ? "voucher" : "member");
-    document.login.username.value = u;
-    if (u !== p) { document.login.password.value = p; }
-    $("info").innerHTML = '<span class="spin"></span> ' + esc(t("autologin"));
-    if (doLogin()) { document.login.submit(); }
-    return true;
-  }
-
-  function loadJsQR(cb) {
-    if (window.jsQR) { cb(); return; }
-    var s = document.createElement("script");
-    s.src = "/js/jsQR.js";
-    s.onload = cb;
-    s.onerror = function () { scanMsg(t("scanfail")); };
-    document.head.appendChild(s);
-  }
-
-  function scanMsg(m) { $("info").className = "alert bad"; $("info").innerHTML = esc(m); }
-
-  function decodeCanvas(ctx, w, h, attempts) {
-    var img = ctx.getImageData(0, 0, w, h);
-    var r = window.jsQR(img.data, w, h, { inversionAttempts: attempts || "dontInvert" });
-    return r ? r.data : null;
-  }
-
-  // Photo fallback (works on plain http, where browsers block the live camera).
-  function scanPhoto(file) {
-    loadJsQR(function () {
-      var img = new Image(), url = (window.URL || window.webkitURL).createObjectURL(file);
-      img.onload = function () {
-        var sizes = [1000, 1600, 600], found = null;
-        for (var i = 0; i < sizes.length && !found; i++) {
-          var k = Math.min(1, sizes[i] / Math.max(img.width, img.height));
-          var c = document.createElement("canvas");
-          c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-          var ctx = c.getContext("2d");
-          ctx.drawImage(img, 0, 0, c.width, c.height);
-          found = decodeCanvas(ctx, c.width, c.height, "attemptBoth");
-        }
-        if (!found || !fromQR(found)) { scanMsg(t("scanfail")); }
-      };
-      img.onerror = function () { scanMsg(t("scanfail")); };
-      img.src = url;
-    });
-  }
-
-  // Live camera (only on https / secure pages).
-  function scanLive() {
-    var ov = document.createElement("div"), stream = null, timer = null;
-    ov.className = "scan-ov";
-    ov.innerHTML = '<div class="frame"><video playsinline muted></video></div><p>' + esc(t("scanhelp")) +
-      '</p><button type="button" class="btn ghost" style="color:#fff;border-color:#fff">' + esc(t("cancel")) + '</button>';
-    document.body.appendChild(ov);
-    var video = ov.querySelector("video"), c = document.createElement("canvas"), ctx = c.getContext("2d");
-    function stop() {
-      if (timer) { clearInterval(timer); }
-      if (stream) { stream.getTracks().forEach(function (tr) { tr.stop(); }); }
-      if (ov.parentNode) { ov.parentNode.removeChild(ov); }
-    }
-    ov.querySelector("button").onclick = stop;
-    loadJsQR(function () {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (s) {
-        stream = s; video.srcObject = s; video.play();
-        timer = setInterval(function () {
-          if (video.readyState < 2) { return; }
-          var k = Math.min(1, 640 / Math.max(video.videoWidth, video.videoHeight));
-          c.width = Math.round(video.videoWidth * k); c.height = Math.round(video.videoHeight * k);
-          ctx.drawImage(video, 0, 0, c.width, c.height);
-          var found = decodeCanvas(ctx, c.width, c.height);
-          if (found) { stop(); if (!fromQR(found)) { scanMsg(t("scanfail")); } }
-        }, 250);
-      }, function () { stop(); $("qrPhoto").click(); });
-    });
-  }
-
-  // Scan button: the router page is plain http (no live camera), so go to the
-  // Mikhmon scanner (https, allowed by the walled garden). It reads the QR and
-  // sends the customer back to this router's /login?username=..&password=..
-  function startScan() {
-    if (C.url && C.SessionName) {
-      window.location.href = C.url + "/scan/?session=" + encodeURIComponent(C.SessionName) + "&lang=" + (C.lang === "en" ? "en" : "id");
-      return;
-    }
-    localScan();
-  }
-
-  // Fallback without Mikhmon: live camera on https, otherwise a photo of the QR.
-  function localScan() {
-    var live = window.isSecureContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
-    if (live) { scanLive(); } else { $("qrPhoto").click(); }
+  // Scanning never happens on the router: the router page is plain http and
+  // cannot use the camera. The button opens the Mikhmon scanner (https, allowed
+  // by the walled garden), which reads the QR and sends the customer back to
+  // this router's /login?username=..&password=..
+  function scanUrl() {
+    if (!C.url || !C.SessionName) { return ""; }
+    return C.url + "/scan/?session=" + encodeURIComponent(C.SessionName) + "&lang=" + (C.lang === "en" ? "en" : "id");
   }
 
   function login(opts) {
@@ -259,9 +168,13 @@ var HS = (function () {
     $("tabM").onclick = function () { setMode("member"); $("username").focus(); };
     setEye(false);
     $("eye").onclick = function () { setEye(document.login.password.type === "password"); return false; };
-    $("btnScan").onclick = startScan;
-    if ($("scanLocal")) { $("scanLocal").onclick = function () { localScan(); return false; }; }
-    $("qrPhoto").onchange = function () { if (this.files && this.files[0]) { scanPhoto(this.files[0]); } this.value = ""; };
+    if (scanUrl()) {
+      $("btnScan").onclick = function () { window.location.href = scanUrl(); };
+    } else {
+      // no Mikhmon configured in conf.js: no scanner available
+      $("btnScan").className = "hide";
+      $("scanOr").className = "hide";
+    }
     document.login.onsubmit = doLogin;
     renderPrices();
     var chk = $("checkLink");
