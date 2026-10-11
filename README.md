@@ -5,7 +5,8 @@ Semua file lokal (tanpa CDN), jadi tetap jalan sebelum pelanggan login.
 
 ## Fitur
 - **Login**: tab Voucher / Member, kotak kode besar, pesan error jelas, login CHAP.
-- **Scan QR voucher = langsung login** (QR dari Mikhmon berisi `login?username=…&password=…`).
+- **Scan QR voucher**: tombol "Scan QR Voucher" di halaman login (kamera langsung di HTTPS, atau ambil foto QR di HTTP), dan scan dengan kamera HP juga langsung login (QR dari Mikhmon berisi `login?username=…&password=…`).
+- **Member**: tombol Lihat / Tutup di dalam kotak password.
 - **Status**: sisa waktu sesi (hitung mundur), **Status Voucher** dari Mikhmon:
   Aktif / Belum dipakai / Habis, paket, masa aktif, berlaku sampai, sisa masa aktif,
   sisa waktu pakai, sisa kuota, total pemakaian. Plus IP, MAC, tombol Logout.

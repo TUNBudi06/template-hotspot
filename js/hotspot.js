@@ -10,7 +10,7 @@ var HS = (function () {
     id: {
       voucher: "Voucher", member: "Member", code: "Kode Voucher", user: "Username", pass: "Password",
       login: "Masuk", show: "lihat", prices: "Daftar Harga", paket: "Paket", durasi: "Durasi", speed: "Kecepatan", harga: "Harga",
-      how: "Cara pakai", s1: "Sambungkan HP ke WiFi", s2: "Ketik kode voucher atau scan QR di voucher", s3: "Tekan Masuk",
+      how: "Cara pakai", s1: "Sambungkan HP ke WiFi", s2: "Ketik kode voucher, atau tekan tombol Scan QR Voucher", s3: "Tekan Masuk",
       check: "Cek sisa voucher", autologin: "Login otomatis dari QR...", hello: "Halo",
       connected: "Anda sudah terhubung", left: "Sisa waktu sesi", expires: "Voucher berlaku sampai", expleft: "Sisa masa aktif",
       dataleft: "Sisa kuota", used: "Pemakaian (upload / download)", uptime: "Lama terhubung", ip: "Alamat IP", mac: "MAC",
@@ -19,12 +19,14 @@ var HS = (function () {
       continuebtn: "Lanjut browsing", statuspage: "Lihat status", err: "Terjadi kesalahan", back: "Kembali",
       expired: "Voucher sudah habis", savepage: "Simpan halaman ini untuk cek sisa waktu:", d: "hari", h: "jam", m: "menit", s: "detik",
       trial: "Coba gratis", vstatus: "Status Voucher", vactive: "Aktif", vunused: "Belum dipakai", package: "Paket",
-      validity: "Masa aktif", timeleft: "Sisa waktu pakai", total: "Total pemakaian", noinfo: "Info voucher belum bisa dimuat. Coba muat ulang halaman."
+      validity: "Masa aktif", timeleft: "Sisa waktu pakai", total: "Total pemakaian", noinfo: "Info voucher belum bisa dimuat. Coba muat ulang halaman.",
+      or: "atau", scan: "Scan QR Voucher", scanhelp: "Arahkan kamera ke QR pada voucher", cancel: "Batal",
+      scanfail: "QR tidak terbaca. Foto lebih dekat dan terang, atau ketik kodenya.", pwshow: "Lihat", pwhide: "Tutup"
     },
     en: {
       voucher: "Voucher", member: "Member", code: "Voucher Code", user: "Username", pass: "Password",
       login: "Connect", show: "show", prices: "Prices", paket: "Package", durasi: "Duration", speed: "Speed", harga: "Price",
-      how: "How to connect", s1: "Connect your phone to WiFi", s2: "Type the voucher code or scan the QR on the voucher", s3: "Press Connect",
+      how: "How to connect", s1: "Connect your phone to WiFi", s2: "Type the voucher code, or press Scan Voucher QR", s3: "Press Connect",
       check: "Check my voucher", autologin: "Logging in from QR...", hello: "Hi",
       connected: "You are connected", left: "Session time left", expires: "Voucher valid until", expleft: "Validity left",
       dataleft: "Data left", used: "Used (upload / download)", uptime: "Connected for", ip: "IP address", mac: "MAC",
@@ -33,7 +35,9 @@ var HS = (function () {
       continuebtn: "Continue browsing", statuspage: "View status", err: "Something went wrong", back: "Back",
       expired: "Voucher used up", savepage: "Bookmark this page to check your time:", d: "days", h: "hours", m: "min", s: "sec",
       trial: "Free trial", vstatus: "Voucher Status", vactive: "Active", vunused: "Not used yet", package: "Package",
-      validity: "Validity", timeleft: "Usage time left", total: "Total usage", noinfo: "Voucher info could not be loaded. Please reload the page."
+      validity: "Validity", timeleft: "Usage time left", total: "Total usage", noinfo: "Voucher info could not be loaded. Please reload the page.",
+      or: "or", scan: "Scan Voucher QR", scanhelp: "Point the camera at the QR on the voucher", cancel: "Cancel",
+      scanfail: "Could not read the QR. Take the photo closer and brighter, or type the code.", pwshow: "Show", pwhide: "Hide"
     }
   };
   var L = TEXT[C.lang === "en" ? "en" : "id"];
@@ -102,8 +106,9 @@ var HS = (function () {
     var vc = mode !== "member";
     $("tabV").className = vc ? "on" : "";
     $("tabM").className = vc ? "" : "on";
-    $("rowPass").className = vc ? "hide" : "pw";
+    $("rowPass").className = vc ? "hide" : "";
     $("lblUser").textContent = vc ? (C.voucherCode || t("code")) : t("user");
+    $("info").className = "alert info";
     $("info").innerHTML = vc ? (C.loginvc || "") : (C.loginup || "");
     $("username").placeholder = vc ? (C.voucherCode || t("code")) : t("user");
     store("hsMode", vc ? "voucher" : "member");
@@ -138,11 +143,112 @@ var HS = (function () {
     return m ? decodeURIComponent(m[1].replace(/\+/g, " ")) : "";
   }
 
+  // ---------- password show / hide ----------
+  var EYE = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7C21.3 9.2 17.5 5 12 5zm0 11.5A4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>';
+  var EYE_OFF = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M2.3 3.7 3.7 2.3l18 18-1.4 1.4-3.2-3.2A11.3 11.3 0 0 1 12 19C6.5 19 2.7 14.8 1.5 12a13 13 0 0 1 3.9-5.2L2.3 3.7zM12 5c5.5 0 9.3 4.2 10.5 7-.6 1.4-1.8 3.2-3.5 4.6l-3.1-3.1A4.5 4.5 0 0 0 10.5 7.6L8.7 5.8C9.7 5.3 10.8 5 12 5z"/></svg>';
+  function setEye(shown) {
+    document.login.password.type = shown ? "text" : "password";
+    $("eye").innerHTML = (shown ? EYE_OFF : EYE) + "<span>" + esc(t(shown ? "pwhide" : "pwshow")) + "</span>";
+    $("eye").setAttribute("aria-pressed", shown ? "true" : "false");
+  }
+
+  // ---------- QR scan ----------
+  // Voucher QR = "http://<dns>/login?username=U&password=P" (or just the code).
+  function fromQR(text) {
+    text = String(text || "").replace(/^\s+|\s+$/g, "");
+    var u = (/[?&]username=([^&#]*)/.exec(text) || [])[1];
+    var p = (/[?&]password=([^&#]*)/.exec(text) || [])[1];
+    try { u = u !== undefined ? decodeURIComponent(u.replace(/\+/g, " ")) : u; p = p !== undefined ? decodeURIComponent(p.replace(/\+/g, " ")) : p; } catch (e) {}
+    if (u === undefined) { u = text; p = text; }
+    if (!u) { return false; }
+    setMode(u === p ? "voucher" : "member");
+    document.login.username.value = u;
+    if (u !== p) { document.login.password.value = p; }
+    $("info").innerHTML = '<span class="spin"></span> ' + esc(t("autologin"));
+    if (doLogin()) { document.login.submit(); }
+    return true;
+  }
+
+  function loadJsQR(cb) {
+    if (window.jsQR) { cb(); return; }
+    var s = document.createElement("script");
+    s.src = "/js/jsQR.js";
+    s.onload = cb;
+    s.onerror = function () { scanMsg(t("scanfail")); };
+    document.head.appendChild(s);
+  }
+
+  function scanMsg(m) { $("info").className = "alert bad"; $("info").innerHTML = esc(m); }
+
+  function decodeCanvas(ctx, w, h, attempts) {
+    var img = ctx.getImageData(0, 0, w, h);
+    var r = window.jsQR(img.data, w, h, { inversionAttempts: attempts || "dontInvert" });
+    return r ? r.data : null;
+  }
+
+  // Photo fallback (works on plain http, where browsers block the live camera).
+  function scanPhoto(file) {
+    loadJsQR(function () {
+      var img = new Image(), url = (window.URL || window.webkitURL).createObjectURL(file);
+      img.onload = function () {
+        var sizes = [1000, 1600, 600], found = null;
+        for (var i = 0; i < sizes.length && !found; i++) {
+          var k = Math.min(1, sizes[i] / Math.max(img.width, img.height));
+          var c = document.createElement("canvas");
+          c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          var ctx = c.getContext("2d");
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          found = decodeCanvas(ctx, c.width, c.height, "attemptBoth");
+        }
+        if (!found || !fromQR(found)) { scanMsg(t("scanfail")); }
+      };
+      img.onerror = function () { scanMsg(t("scanfail")); };
+      img.src = url;
+    });
+  }
+
+  // Live camera (only on https / secure pages).
+  function scanLive() {
+    var ov = document.createElement("div"), stream = null, timer = null;
+    ov.className = "scan-ov";
+    ov.innerHTML = '<div class="frame"><video playsinline muted></video></div><p>' + esc(t("scanhelp")) +
+      '</p><button type="button" class="btn ghost" style="color:#fff;border-color:#fff">' + esc(t("cancel")) + '</button>';
+    document.body.appendChild(ov);
+    var video = ov.querySelector("video"), c = document.createElement("canvas"), ctx = c.getContext("2d");
+    function stop() {
+      if (timer) { clearInterval(timer); }
+      if (stream) { stream.getTracks().forEach(function (tr) { tr.stop(); }); }
+      if (ov.parentNode) { ov.parentNode.removeChild(ov); }
+    }
+    ov.querySelector("button").onclick = stop;
+    loadJsQR(function () {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (s) {
+        stream = s; video.srcObject = s; video.play();
+        timer = setInterval(function () {
+          if (video.readyState < 2) { return; }
+          var k = Math.min(1, 640 / Math.max(video.videoWidth, video.videoHeight));
+          c.width = Math.round(video.videoWidth * k); c.height = Math.round(video.videoHeight * k);
+          ctx.drawImage(video, 0, 0, c.width, c.height);
+          var found = decodeCanvas(ctx, c.width, c.height);
+          if (found) { stop(); if (!fromQR(found)) { scanMsg(t("scanfail")); } }
+        }, 250);
+      }, function () { stop(); $("qrPhoto").click(); });
+    });
+  }
+
+  function startScan() {
+    var live = window.isSecureContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+    if (live) { scanLive(); } else { $("qrPhoto").click(); }
+  }
+
   function login(opts) {
     init();
     $("tabV").onclick = function () { setMode("voucher"); $("username").focus(); };
     $("tabM").onclick = function () { setMode("member"); $("username").focus(); };
-    $("eye").onclick = function () { var p = document.login.password; p.type = p.type === "password" ? "text" : "password"; return false; };
+    setEye(false);
+    $("eye").onclick = function () { setEye(document.login.password.type === "password"); return false; };
+    $("btnScan").onclick = startScan;
+    $("qrPhoto").onchange = function () { if (this.files && this.files[0]) { scanPhoto(this.files[0]); } this.value = ""; };
     document.login.onsubmit = doLogin;
     renderPrices();
     var chk = $("checkLink");
