@@ -1,25 +1,42 @@
-# new-hotspot-01
+# Template Hotspot MikroTik (untuk Mikhmon)
 
-## config
-edit file conf.js
+Halaman login hotspot yang besar, jelas, dan mudah dipakai siapa saja.
+Semua file lokal (tanpa CDN), jadi tetap jalan sebelum pelanggan login.
 
-- setCase : untuk mengatur input huruf besar(uppercase) atau huruf kecil(lowercase).
-- defaultMode : mengatur tampilan utama login page, voucher atau member(user & password).
+## Fitur
+- **Login**: tab Voucher / Member, kotak kode besar, pesan error jelas, login CHAP.
+- **Scan QR voucher = langsung login** (QR dari Mikhmon berisi `login?username=…&password=…`).
+- **Status**: sisa waktu sesi (hitung mundur), **Status Voucher** dari Mikhmon:
+  Aktif / Belum dipakai / Habis, paket, masa aktif, berlaku sampai, sisa masa aktif,
+  sisa waktu pakai, sisa kuota, total pemakaian. Plus IP, MAC, tombol Logout.
+- **Daftar harga** bisa ditampilkan / disembunyikan (`showPrices`).
+- Tema terang / gelap / otomatis, bahasa Indonesia / Inggris.
 
-```javascript
-var config = {
+## Pengaturan (`conf.js`)
+| Kunci | Arti |
+|---|---|
+| `url` | Alamat Mikhmon, tanpa `/` di akhir |
+| `SessionName` | Nama session router di Mikhmon |
+| `hotspotName`, `wifiName` | Judul halaman dan nama WiFi di petunjuk (kosong = SessionName) |
+| `defaultMode` | `voucher` atau `member` |
+| `setCase` | `none`, `lowercase`, `uppercase` |
+| `theme` | `default`, `dark`, `auto` |
+| `lang` | `id` atau `en` |
+| `contact` | Teks kontak di bawah halaman |
+| `showPrices` | `true` tampilkan daftar harga, `false` sembunyikan |
+| `packages` | Isi daftar harga |
 
-loginvc : "Masukkan Kode Voucher kemudian klik Connect.",
-loginup : "Masukkan Username dan Password <br> kemudian klik Connect.",
-voucherCode : "Kode Voucher",
-setCase : "none", // lowercase, uppercase or none
-defaultMode : "voucher", // voucher or member
-theme : "default", // default, dark, lite
+Ganti `img/logo.png` dengan logo Anda.
 
-// status expire
+## Pasang di router (RouterOS v7)
+1. Upload semua file ke folder baru, misalnya `hotspot-v2` (Winbox → Files, atau `scp -r * admin@ROUTER:/hotspot-v2/`).
+2. Aktifkan:
+   ```
+   /ip hotspot profile set [find name=hsprof1] html-directory=hotspot-v2 login-by=http-chap,http-pap,cookie,mac-cookie
+   /ip hotspot walled-garden add dst-host=mikhmon.theunknownname06.my.id comment=mikhmon-status
+   ```
+   (`http-pap` supaya QR bisa login langsung; walled garden supaya "Cek sisa voucher" bisa dibuka sebelum login.)
+3. Kembali ke template lama: `/ip hotspot profile set [find name=hsprof1] html-directory=hotspot`
 
-url : "https://demo.mikhmon.online", // url server Mikhmon
-SessionName : "demo", 
-
-}
-```
+Status Voucher membutuhkan Mikhmon versi baru (endpoint `status/api.php`),
+branch `original` di https://github.com/TUNBudi06/mikhmon.

@@ -1,46 +1,32 @@
-<!doctype html>
-<html lang="en">
-
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="refresh" content="2; url=$(link-redirect)">
-    <meta http-equiv="pragma" content="no-cache">
-    <meta http-equiv="expires" content="-1">
-    <title>Internet hotspot - Redirect</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script>
-        function startClock() {
-            $(if popup == 'true')
-            open('$(link-status)', 'hotspot_status', 'toolbar=0,location=0,directories=0,status=0,menubars=0,resizable=1,width=290,height=200');
-        $(endif)
-        location.href = unescape('$(link-redirect-esc)');
-        }
-
-    </script> 
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="expires" content="-1">
+<meta http-equiv="refresh" content="3; url=$(link-redirect)">
+<title>Hotspot</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/css/hotspot.css">
+<script src="/conf.js"></script>
 </head>
-
-<body onLoad="startClock()">
-    <div class="ie-fixMinHeight">
-        <div class="main">
-            <div class="wrap">
-                <h1>You are logged in</h1>
-                <p class="info">If nothing happens, click <a href="$(link-redirect)">here</a></p>
-            </div>
-        </div>
-    </div>
-<script src="conf.js"></script>    
-<script type="text/javascript">
-//set theme
-
-var bodyclass = document.getElementsByTagName("body")[0];
-if (config["theme"] == "dark"){
-    bodyclass.classList.add("dark");
-}else if (config["theme"] == "lite"){
-    bodyclass.classList.add("lite");
-}
-
-</script>    
+<body>
+<div class="wrap">
+  <div class="brand">
+    <img id="logo" alt="">
+    <h1 class="js-name">Hotspot</h1>
+  </div>
+  <div class="card center">
+    <div class="alert ok" data-t="success">Berhasil masuk!</div>
+    <div class="big" style="font-size:26px">$(username)</div>
+    <p class="muted"><span class="spin"></span> <span data-t="redirecting">Mengalihkan...</span></p>
+  </div>
+  <a class="btn" href="$(link-redirect)" data-t="continuebtn">Lanjut browsing</a>
+  <a class="btn ghost" href="$(link-status)" data-t="statuspage">Lihat status</a>
+  <div class="foot" id="foot">$(hostname)</div>
+</div>
+<script src="/js/hotspot.js"></script>
+<script>HS.init();</script>
 </body>
-
 </html>

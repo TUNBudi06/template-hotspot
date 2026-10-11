@@ -1,20 +1,35 @@
+// =====================================================================
+//  Hotspot settings. This is the only file you normally need to edit.
+//  (Same keys as the previous template; new optional keys are marked NEW.)
+// =====================================================================
 var config = {
 
-    loginvc      : "Masukkan Kode Voucher kemudian klik Connect.",
-    loginup      : "Masukkan Username dan Password <br> kemudian klik Connect.",
+    // Text on the login page
+    loginvc      : "Masukkan Kode Voucher kemudian klik Masuk.",
+    loginup      : "Masukkan Username dan Password kemudian klik Masuk.",
     voucherCode  : "Kode Voucher",
-    setCase      : "none",    // lowercase, uppercase or none
+    setCase      : "none",    // lowercase, uppercase or none (applied to what the user types)
     defaultMode  : "voucher", // voucher or member
-    theme        : "dark",    // default, dark, lite
+    theme        : "dark",    // default (light), dark, auto (follows the phone)
 
-    // status expire
-    url          : "https://mikhmon.theunknownname06.my.id", // url server Mikhmon
-    SessionName  : "TheUnknownHotspot",
+    // Mikhmon server: used to show the voucher expiry date on the status page.
+    // The router must allow this domain before login (IP > Hotspot > Walled Garden)
+    // if you want the "Check voucher" link to work before login.
+    url          : "https://mikhmon.theunknownname06.my.id", // no trailing slash
+    SessionName  : "TheUnknownHotspot",                      // Mikhmon session (router) name
+
+    // NEW: display
+    hotspotName  : "",        // shown as title; empty = SessionName
+    wifiName     : "",        // SSID shown in the help text; empty = hotspotName
+    lang         : "id",      // id or en
+    contact      : "",        // e.g. "WA 0812-xxxx-xxxx" (shown at the bottom)
+    logo         : "img/logo.png", // put your logo in img/ (empty = no logo)
 
     // =========================================================
-    // Daftar Harga Paket — edit di sini untuk mengubah harga
-    // Kolom: paket, durasi, kecepatan, harga
+    // Daftar Harga Paket / price list
+    // showPrices : true = tampilkan di halaman login, false = sembunyikan
     // =========================================================
+    showPrices : false,
     packages : [
         { paket: "1 Jam",    durasi: "60 Menit", kecepatan: "1 Mbps",  harga: "Rp 2.000"   },
         { paket: "3 Jam",    durasi: "3 Jam",    kecepatan: "2 Mbps",  harga: "Rp 5.000"   },
