@@ -15,7 +15,7 @@ var config = {
     // Mikhmon server: used to show the voucher expiry date on the status page.
     // The router must allow this domain before login (IP > Hotspot > Walled Garden)
     // if you want the "Check voucher" link to work before login.
-    url          : "https://mikhmon.theunknownname06.my.id", // no trailing slash
+    url          : "https://mikhmon.tunzerosix.xyz", // no trailing slash
     SessionName  : "TheUnknownHotspot",                      // Mikhmon session (router) name
 
     // NEW: display

@@ -33,7 +33,7 @@ Ganti `img/logo.png` dengan logo Anda.
 2. Aktifkan:
    ```
    /ip hotspot profile set [find name=hsprof1] html-directory=hotspot-v2 login-by=http-chap,http-pap,cookie,mac-cookie
-   /ip hotspot walled-garden add dst-host=mikhmon.theunknownname06.my.id comment=mikhmon-status
+   /ip hotspot walled-garden add dst-host=mikhmon.tunzerosix.xyz comment=mikhmon-status
    ```
    (`http-pap` supaya QR bisa login langsung; walled garden supaya "Cek sisa voucher" bisa dibuka sebelum login.)
 3. Kembali ke template lama: `/ip hotspot profile set [find name=hsprof1] html-directory=hotspot`
