@@ -8,8 +8,8 @@
 <meta http-equiv="refresh" content="3; url=$(link-redirect)">
 <title>Hotspot</title>
 <link rel="icon" href="/favicon.ico">
-<link rel="stylesheet" href="/css/hotspot.css">
-<script src="/conf.js"></script>
+<link rel="stylesheet" href="/css/hotspot.css?v=4">
+<script>/* conf.js always fresh (the router caches static files for a year) */ document.write('<script src="/conf.js?t=' + new Date().getTime() + '"><\/script>');</script>
 </head>
 <body>
 <div class="wrap">
@@ -26,7 +26,7 @@
   <a class="btn ghost" href="$(link-status)" data-t="statuspage">Lihat status</a>
   <div class="foot" id="foot">$(hostname)</div>
 </div>
-<script src="/js/hotspot.js"></script>
+<script src="/js/hotspot.js?v=4"></script>
 <script>HS.init();</script>
 </body>
 </html>

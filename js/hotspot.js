@@ -168,12 +168,12 @@ var HS = (function () {
     $("tabM").onclick = function () { setMode("member"); $("username").focus(); };
     setEye(false);
     $("eye").onclick = function () { setEye(document.login.password.type === "password"); return false; };
+    // A plain link (no click handler): the button is shown only when conf.js
+    // has the Mikhmon address, so it can never do nothing.
     if (scanUrl()) {
-      $("btnScan").onclick = function () { window.location.href = scanUrl(); };
-    } else {
-      // no Mikhmon configured in conf.js: no scanner available
-      $("btnScan").className = "hide";
-      $("scanOr").className = "hide";
+      $("btnScan").href = scanUrl();
+      $("btnScan").className = "btn ghost scanbtn";
+      $("scanOr").className = "or";
     }
     document.login.onsubmit = doLogin;
     renderPrices();
