@@ -61,6 +61,7 @@ $(endif)
       <span data-t="scan">Scan QR Voucher</span>
     </button>
     <input type="file" id="qrPhoto" accept="image/*" capture="environment" class="hide">
+    <p class="center small" style="margin:8px 0 0"><a href="#" id="scanLocal" data-t="scanlocal">Kamera tidak terbuka? Foto QR di sini</a></p>
     $(if trial == 'yes')
     <a class="btn ghost" href="$(link-login-only)?dst=$(link-orig-esc)&amp;username=T-$(mac-esc)" data-t="trial">Coba gratis</a>
     $(endif)

@@ -21,7 +21,7 @@ var HS = (function () {
       trial: "Coba gratis", vstatus: "Status Voucher", vactive: "Aktif", vunused: "Belum dipakai", package: "Paket",
       validity: "Masa aktif", timeleft: "Sisa waktu pakai", total: "Total pemakaian", noinfo: "Info voucher belum bisa dimuat. Coba muat ulang halaman.",
       or: "atau", scan: "Scan QR Voucher", scanhelp: "Arahkan kamera ke QR pada voucher", cancel: "Batal",
-      scanfail: "QR tidak terbaca. Foto lebih dekat dan terang, atau ketik kodenya.", pwshow: "Lihat", pwhide: "Tutup"
+      scanfail: "QR tidak terbaca. Foto lebih dekat dan terang, atau ketik kodenya.", pwshow: "Lihat", pwhide: "Tutup", scanlocal: "Kamera tidak terbuka? Foto QR di sini"
     },
     en: {
       voucher: "Voucher", member: "Member", code: "Voucher Code", user: "Username", pass: "Password",
@@ -37,7 +37,7 @@ var HS = (function () {
       trial: "Free trial", vstatus: "Voucher Status", vactive: "Active", vunused: "Not used yet", package: "Package",
       validity: "Validity", timeleft: "Usage time left", total: "Total usage", noinfo: "Voucher info could not be loaded. Please reload the page.",
       or: "or", scan: "Scan Voucher QR", scanhelp: "Point the camera at the QR on the voucher", cancel: "Cancel",
-      scanfail: "Could not read the QR. Take the photo closer and brighter, or type the code.", pwshow: "Show", pwhide: "Hide"
+      scanfail: "Could not read the QR. Take the photo closer and brighter, or type the code.", pwshow: "Show", pwhide: "Hide", scanlocal: "Camera did not open? Take a photo of the QR here"
     }
   };
   var L = TEXT[C.lang === "en" ? "en" : "id"];
@@ -236,7 +236,19 @@ var HS = (function () {
     });
   }
 
+  // Scan button: the router page is plain http (no live camera), so go to the
+  // Mikhmon scanner (https, allowed by the walled garden). It reads the QR and
+  // sends the customer back to this router's /login?username=..&password=..
   function startScan() {
+    if (C.url && C.SessionName) {
+      window.location.href = C.url + "/scan/?session=" + encodeURIComponent(C.SessionName) + "&lang=" + (C.lang === "en" ? "en" : "id");
+      return;
+    }
+    localScan();
+  }
+
+  // Fallback without Mikhmon: live camera on https, otherwise a photo of the QR.
+  function localScan() {
     var live = window.isSecureContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     if (live) { scanLive(); } else { $("qrPhoto").click(); }
   }
@@ -248,6 +260,7 @@ var HS = (function () {
     setEye(false);
     $("eye").onclick = function () { setEye(document.login.password.type === "password"); return false; };
     $("btnScan").onclick = startScan;
+    if ($("scanLocal")) { $("scanLocal").onclick = function () { localScan(); return false; }; }
     $("qrPhoto").onchange = function () { if (this.files && this.files[0]) { scanPhoto(this.files[0]); } this.value = ""; };
     document.login.onsubmit = doLogin;
     renderPrices();
